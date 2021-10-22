@@ -1,2 +1,2 @@
 # ICK
-Analiza i podstawowa diagnostyka choróbserca na podstawie sygnału EKG
+Analiza i podstawowa diagnostyka chorób serca na podstawie sygnału EKG
