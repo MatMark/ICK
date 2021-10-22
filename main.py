@@ -11,14 +11,14 @@ fs = 360
 time = np.arange(ecg.size) / fs
 
 
-fig, ax = plt.subplots(num=None, figsize=(16, 16), dpi=80)
+fig, ax = plt.subplots(num=None, figsize=(32, 16), dpi=80)
 fig.canvas.manager.set_window_title(file_name)
 ax.plot(time, ecg, color='black', linewidth=.5)
 plt.grid(axis="x", color="r", alpha=.5, linewidth=.5, which='major')
 plt.grid(axis="y", color="r", alpha=.5, linewidth=.5, which='major')
 plt.grid(axis="x", color="r", alpha=.5, linewidth=.2, which='minor')
 plt.grid(axis="y", color='r', alpha=.5, linewidth=.2, which='minor')
-major_locator_x = ticker.MultipleLocator(base=1.0)
+major_locator_x = ticker.MultipleLocator(base=0.2)
 ax.xaxis.set_major_locator(major_locator_x)
 major_locator_y = ticker.MultipleLocator(base=.5)
 ax.yaxis.set_major_locator(major_locator_y)
@@ -30,9 +30,9 @@ plt.tick_params(which='major', length=7, color='r')
 plt.tick_params(which='minor', length=4, color='r')
 for spine in ['top', 'right', 'bottom', 'left']:
     ax.spines[spine].set_color('red')
-plt.title("Sygnał EKG nr " + file_name, fontsize=24)
+plt.title("Sygnał EKG nr " + file_name + " (przesuw 25mm/s)", fontsize=24)
 plt.xlabel("s", fontsize="20")
 plt.ylabel("mV", fontsize="20")
-plt.xlim(0, 10)
+plt.xlim(0, 4)
 plt.ylim(-3, 3)
 plt.show()
