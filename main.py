@@ -5,7 +5,10 @@ import numpy as np
 
 file_name = '12345'
 
-ecg = electrocardiogram()
+# ecg = electrocardiogram()
+import scipy.io
+ecg = scipy.io.loadmat('106m (0).mat').get('val')[0]
+print(ecg)
 
 fs = 360
 time = np.arange(ecg.size) / fs
