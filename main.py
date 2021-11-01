@@ -1,13 +1,28 @@
-from scipy.misc import electrocardiogram
+import os
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 
-file_name = '12345'
+import lued.load_from_lued as lued
+import mendeley.load_from_mendeley as mendeley
+import mitdb.load_from_mitdb as mitdb
 
-ecg = electrocardiogram()
+Tk().withdraw()
+path = askopenfilename()
+extension = os.path.splitext(path)[1]
+file_name = os.path.basename(path)
 
-fs = 360
+if(extension == '.dat' or extension == '.hea'):
+    ecg, fs = mitdb.load_from_file(path=path)
+    # ecg, fs = lued.load_from_file(path=path)
+elif(extension == '.mat'):
+    ecg, fs = mendeley.load_from_file(path=path)
+else:
+    print('error')
+
 time = np.arange(ecg.size) / fs
 
 

@@ -1,12 +1,18 @@
 import wfdb
 import numpy as np
-record = wfdb.rdsamp('lued/1', sampto=3000)
-print(record)
-# annotation = wfdb.rdann('mitdb/1', 'atr', sampto=3000)
-num = int(record[0].size / 2)
-print(num)
-result = np.empty(shape=[0])
-# for x in range(0, num):
-#     result = np.append(result, record[0][x][0])
-# np.savetxt("1.csv", result, delimiter=",")
-print(result)
+import os
+
+
+def load_from_file(path: str = None):
+    hea = open(f"{os.path.splitext(path)[0]}.hea", "r")
+    hea_text = hea.readline()
+    fs = int(hea_text.split()[2])
+    num = int(hea_text.split()[3])
+    file_name = os.path.splitext(path)[0]
+
+    record = wfdb.rdsamp(file_name)
+    # zawsze tylko dane z pierwszego odprowadzenia
+    result = np.empty(shape=[0])
+    for x in range(0, num):
+        result = np.append(result, record[0][x][0])
+    return result, fs

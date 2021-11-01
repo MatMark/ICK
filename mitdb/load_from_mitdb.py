@@ -1,11 +1,19 @@
 import wfdb
 import numpy as np
-record = wfdb.rdsamp('mitdb/100', sampto=3000)
-print(record)
-annotation = wfdb.rdann('mitdb/100', 'atr', sampto=3000)
-num = int(record[0].size / 2)
-print(num)
-result = np.empty(shape=[0])
-for x in range(0, num):
-    result = np.append(result, record[0][x][0])
-np.savetxt("100.csv", result, delimiter=",")
+import os
+
+
+def load_from_file(path: str = None):
+    hea = open(f"{os.path.splitext(path)[0]}.hea", "r")
+    hea_text = hea.readline()
+    fs = int(hea_text.split()[2])
+    num = 3600
+    file_name = os.path.splitext(path)[0]
+
+    # wczytywanie tylko 10 pierwszych sekund
+    record = wfdb.rdsamp(file_name, sampto=num)
+    # zawsze tylko dane z pierwszego odprowadzenia
+    result = np.empty(shape=[0])
+    for x in range(0, num):
+        result = np.append(result, record[0][x][0])
+    return result, fs
