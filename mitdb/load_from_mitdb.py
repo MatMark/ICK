@@ -7,7 +7,7 @@ def load_from_file(path: str = None):
     hea = open(f"{os.path.splitext(path)[0]}.hea", "r")
     hea_text = hea.readline()
     fs = int(hea_text.split()[2])
-    num = 3600
+    num = fs*10
     file_name = os.path.splitext(path)[0]
 
     # wczytywanie tylko 10 pierwszych sekund
