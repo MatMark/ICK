@@ -38,6 +38,8 @@ class Window(QDialog):
         self.labelPulse = QLabel('Pulse: ---')
         self.labelPulse.setFixedHeight(40)
 
+        self.labelDiagnosis = QLabel('Diagnosis: ---')
+        self.labelDiagnosis.setFixedHeight(30)
         # adding action to the button
         self.buttonLoad.clicked.connect(self.load_data)
         # self.buttonPlot.clicked.connect(self.plot)
@@ -47,6 +49,7 @@ class Window(QDialog):
         layout = QVBoxLayout()
 
         layout.addWidget(self.labelPulse)
+        layout.addWidget(self.labelDiagnosis)
         # adding canvas to the layout
         layout.addWidget(self.canvas)
 
@@ -114,8 +117,33 @@ class Window(QDialog):
         self.signal_length = self.ecg.size / self.fs
         self.pulse = int(60/self.signal_length*len(self.r_x))
         self.labelPulse.setText('Pulse: {}'.format(self.pulse))
+        self.labelDiagnosis.setText('Diagnosis: '+(self.checkDeseaseByPulse(self.pulse)))
+
         self.setWindowTitle(self.file_name)
         self.plot()
+
+    def checkBradycardia(self, pulse):
+        if(pulse < 60):
+            if(pulse > 50):
+                return str("Probability of Bradycardia")
+            else:
+                return str("High probability of Bradycardia")
+
+    def checkTachycardia(self, pulse):
+        if(pulse > 100):
+            if(pulse > 120):
+                return str("High probability of Tachycardia")
+            else:
+                return str("Probability of Tachycardia")
+
+    def checkDeseaseByPulse(self, pulse):
+        if(self.checkBradycardia(pulse) != None):
+            return self.checkBradycardia(pulse)
+        elif(self.checkTachycardia(pulse) != None):
+            return self.checkTachycardia(pulse)
+        else:
+            return str("Programmed anomally not found.")
+
 
 
 app = QApplication(sys.argv)
