@@ -1,6 +1,7 @@
 from matplotlib import ticker
 from helpers.load import load_data
 from helpers.r import find_r
+from helpers.p import PWave
 
 import sys
 from PyQt5.QtWidgets import QDialog, QApplication, QLabel, QPushButton, QVBoxLayout
@@ -16,7 +17,7 @@ class Window(QDialog):
     # constructor
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
-        self.showFullScreen()
+        # self.showFullScreen()
 
         # a figure instance to plot on
         self.figure = plt.figure()
@@ -69,6 +70,9 @@ class Window(QDialog):
         rx = [x / self.fs for x in self.r_x]
         ry = self.r_y
 
+        px = [x / self.fs for x in self.p_x]
+        py = self.p_y
+
         min_var = math.floor(min(self.ecg))
         max_var = math.ceil(max(self.ecg))
         height = int(math.dist([min_var], [max_var]))
@@ -83,6 +87,8 @@ class Window(QDialog):
         ax.plot(time, self.ecg, color='black', linewidth=.5)
         ax.plot(rx, ry, color='blue',
                 marker='o', linewidth=3, linestyle="None")
+        ax.plot(px, py, color='green',
+                marker='P', linewidth=3, linestyle="None")
 
         plt.grid(axis="x", color="r", alpha=.5, linewidth=.5, which='major')
         plt.grid(axis="y", color="r", alpha=.5, linewidth=.5, which='major')
@@ -113,6 +119,7 @@ class Window(QDialog):
     def load_data(self):
         self.ecg, self.fs, self.file_name = load_data()
         self.r_x, self.r_y = find_r(self.ecg)
+        self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
         #length in sec
         self.signal_length = self.ecg.size / self.fs
         self.pulse = int(60/self.signal_length*len(self.r_x))
