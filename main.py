@@ -18,7 +18,10 @@ class Window(QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         # self.showFullScreen()
-
+        screen = app.primaryScreen()
+        rect = screen.availableGeometry()
+        self.setFixedWidth(int(rect.width() * .8))
+        self.setFixedHeight(int(rect.height() * .8))
         # a figure instance to plot on
         self.figure = plt.figure()
 
@@ -117,7 +120,7 @@ class Window(QDialog):
         self.canvas.draw()
 
     def load_data(self):
-        self.ecg, self.fs, self.file_name = load_data()
+        self.ecg, self.fs, self.file_name = load_data(self)
         self.r_x, self.r_y = find_r(self.ecg)
         self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
         #length in sec
