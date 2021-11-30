@@ -45,5 +45,7 @@ class PWave():
         temp = temp[10::]
         # remove min 10
         temp = temp[:-10:]
-        avg = np.mean(temp)
-        return avg+abs(avg*.2)
+        if temp.size > 0:
+            avg = np.mean(temp)
+            return avg+abs(avg*.2)
+        return 0
