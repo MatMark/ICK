@@ -1,3 +1,8 @@
+# | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
+# |             POLITECHNIKA WROCŁAWSKA                |
+# |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
+# |                      2021                          |
+
 from matplotlib import ticker
 from helpers.load import load_data
 from helpers.r import find_r
@@ -59,20 +64,21 @@ class Window(QDialog):
 
         # adding push button to the layout
         layout.addWidget(self.buttonLoad)
-        # layout.addWidget(self.buttonPlot)
         layout.addWidget(self.buttonClose)
+
         # adding tool bar to the layout
         layout.addWidget(self.toolbar)
 
         # setting layout to the main window
         self.setLayout(layout)
 
-    # action called by thte push button
+    # plotting
     def plot(self):
         time = np.arange(self.ecg.size) / self.fs
+        # coordinates of R wave
         rx = [x / self.fs for x in self.r_x]
         ry = self.r_y
-
+        # coordinates of P wave
         px = [x / self.fs for x in self.p_x]
         py = self.p_y
 
@@ -119,19 +125,25 @@ class Window(QDialog):
 
         self.canvas.draw()
 
+    # loading data
     def load_data(self):
+        # loading ecg signal from file
         self.ecg, self.fs, self.file_name = load_data(self)
+        # finding R waves
         self.r_x, self.r_y = find_r(self.ecg)
+        # finding P waves
         self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
-        #length in sec
+        # signal length in sec
         self.signal_length = self.ecg.size / self.fs
+        # pulse value
         self.pulse = int(60/self.signal_length*len(self.r_x))
-        self.labelPulse.setText('Pulse: {}'.format(self.pulse))
-        self.labelDiagnosis.setText('Diagnosis: '+(self.checkDeseaseByPulse(self.pulse)))
-
+        self.labelPulse.setText(f'Pulse: {self.pulse}')
+        self.labelDiagnosis.setText(
+            f'Diagnosis: {self.checkDeseaseByPulse(self.pulse)}')
         self.setWindowTitle(self.file_name)
         self.plot()
 
+    # bradycardia detection
     def checkBradycardia(self, pulse):
         if(pulse < 60):
             if(pulse > 50):
@@ -139,6 +151,7 @@ class Window(QDialog):
             else:
                 return str("High probability of Bradycardia")
 
+    # tachycardia detection
     def checkTachycardia(self, pulse):
         if(pulse > 100):
             if(pulse > 120):
@@ -146,6 +159,7 @@ class Window(QDialog):
             else:
                 return str("Probability of Tachycardia")
 
+    # heart rate based detection desease
     def checkDeseaseByPulse(self, pulse):
         if(self.checkBradycardia(pulse) != None):
             return self.checkBradycardia(pulse)
@@ -153,7 +167,6 @@ class Window(QDialog):
             return self.checkTachycardia(pulse)
         else:
             return str("Programmed anomally not found.")
-
 
 
 app = QApplication(sys.argv)

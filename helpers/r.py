@@ -1,3 +1,9 @@
+# | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
+# |             POLITECHNIKA WROCŁAWSKA                |
+# |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
+# |                      2021                          |
+
+
 def find_r(ecg):
     r_x, r_y = firstSearch(ecg, findMaximum(ecg))
     return r_x, r_y
