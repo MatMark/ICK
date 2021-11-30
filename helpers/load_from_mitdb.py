@@ -1,3 +1,9 @@
+# | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
+# |             POLITECHNIKA WROCŁAWSKA                |
+# |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
+# |                      2021                          |
+
+
 import wfdb
 import numpy as np
 import os

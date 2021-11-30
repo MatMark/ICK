@@ -1,3 +1,9 @@
+# | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
+# |             POLITECHNIKA WROCŁAWSKA                |
+# |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
+# |                      2021                          |
+
+
 import numpy as np
 
 
@@ -5,6 +11,7 @@ class PWave():
     def __init__(self):
         pass
 
+    # finding P wave in ECG signal
     def find_p(self, ecg, r_x):
         self.p_x, self.p_y = [], []
         for i in range(len(r_x) - 1):
@@ -23,7 +30,6 @@ class PWave():
                 p_y = max(above_minimum)
                 p_x = list(right_half).index(p_y) + \
                     int(fragment.size/2) + 10 + r_x[i]
-                # print(ecg[p_x])
                 self.p_x.append(p_x)
                 self.p_y.append(p_y)
         return self.p_x, self.p_y
