@@ -1,7 +1,8 @@
 import numpy as np
 
 
-def is_regular_rhythm(r_x):
+def is_regular_rhythm(rx):
+    r_x = rx.copy()
     i = 0
     while i < (len(r_x) - 1):
         if (r_x[i+1] - r_x[i]) < 20:
