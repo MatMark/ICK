@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+from helpers.rhythm import is_regular_rhythm
+
 
 class Window(QDialog):
 
@@ -44,6 +46,9 @@ class Window(QDialog):
 
         self.labelDiagnosis = QLabel('Diagnosis: ---')
         self.labelDiagnosis.setFixedHeight(30)
+
+        self.labelRhythm = QLabel('Heart rhythm: ---')
+        self.labelRhythm.setFixedHeight(30)
         # adding action to the button
         self.buttonLoad.clicked.connect(self.load_data)
         # self.buttonPlot.clicked.connect(self.plot)
@@ -54,6 +59,7 @@ class Window(QDialog):
 
         layout.addWidget(self.labelPulse)
         layout.addWidget(self.labelDiagnosis)
+        layout.addWidget(self.labelRhythm)
         # adding canvas to the layout
         layout.addWidget(self.canvas)
 
@@ -128,6 +134,7 @@ class Window(QDialog):
         self.pulse = int(60/self.signal_length*len(self.r_x))
         self.labelPulse.setText('Pulse: {}'.format(self.pulse))
         self.labelDiagnosis.setText('Diagnosis: '+(self.checkDeseaseByPulse(self.pulse)))
+        self.labelRhythm.setText('Heart rhythm: '+(self.checkRhythm(is_regular_rhythm(self.r_x))))
 
         self.setWindowTitle(self.file_name)
         self.plot()
@@ -154,6 +161,11 @@ class Window(QDialog):
         else:
             return str("Programmed anomally not found.")
 
+    def checkRhythm(self, rhythm):
+        if rhythm:
+            return str("Regular")
+        else:
+            return str("Irregular")
 
 
 app = QApplication(sys.argv)
