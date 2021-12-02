@@ -145,7 +145,7 @@ class Window(QDialog):
         self.pulse = int(60/self.signal_length*len(self.r_x))
         self.labelPulse.setText(f'Pulse: {self.pulse}')
         self.labelDiagnosis.setText(
-            f'Diagnosis: {self.checkDeseaseByPulse(self.pulse)}')
+            f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
         self.labelRhythm.setText('Heart rhythm: '+(self.checkRhythm(is_regular_rhythm(self.r_x))))
 
         self.setWindowTitle(self.file_name)
@@ -167,8 +167,8 @@ class Window(QDialog):
             else:
                 return str("Probability of Tachycardia")
 
-    # heart rate based detection desease
-    def checkDeseaseByPulse(self, pulse):
+    # heart rate based detection disease
+    def checkDiseaseByPulse(self, pulse):
         if(self.checkBradycardia(pulse) != None):
             return self.checkBradycardia(pulse)
         elif(self.checkTachycardia(pulse) != None):
@@ -176,6 +176,7 @@ class Window(QDialog):
         else:
             return str("Programmed anomally not found.")
 
+    # checks whether the rhythm is regular or irregular
     def checkRhythm(self, rhythm):
         if rhythm:
             return str("Regular")
