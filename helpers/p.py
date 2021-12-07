@@ -16,11 +16,13 @@ class PWave():
         self.p_x, self.p_y = [], []
         for i in range(len(r_x) - 1):
             fragment = ecg[r_x[i]:r_x[i+1]]
-            # remove first 10; too close to first R
-            fragment = fragment[10::]
-            # remove last 10; too close to second R
-            fragment = fragment[:-10:]
-            self.minimal_value = self.find_minimal_value(fragment)
+            self.minimal_value, self.avg_value = self.find_minimal_value_and_avg(
+                fragment)
+            # remove elements if above average value and next 3 elements (to the left) are not bigger
+            while (len(fragment) > 1 and fragment[-1] > (self.avg_value)):
+                if(fragment[-1] < fragment[-2] and fragment[-1] < fragment[-3] and fragment[-1] < fragment[-4]):
+                    break
+                fragment = fragment[:-1:]
             # get only right half of R-R interval
             right_half = fragment[int(fragment.size/2)::]
             # P must be 20% above average value
@@ -29,7 +31,7 @@ class PWave():
             if (above_minimum):
                 p_y = max(above_minimum)
                 p_x = list(right_half).index(p_y) + \
-                    int(fragment.size/2) + 10 + r_x[i]
+                    int(fragment.size/2) + r_x[i]
                 self.p_x.append(p_x)
                 self.p_y.append(p_y)
         return self.p_x, self.p_y
@@ -39,7 +41,7 @@ class PWave():
             return True
         return False
 
-    def find_minimal_value(self, fragment):
+    def find_minimal_value_and_avg(self, fragment):
         temp = np.sort(fragment)
         # remove max 10
         temp = temp[10::]
@@ -47,5 +49,5 @@ class PWave():
         temp = temp[:-10:]
         if temp.size > 0:
             avg = np.mean(temp)
-            return avg+abs(avg*.2)
-        return 0
+            return avg+abs(avg*.2), avg
+        return 0, 0
