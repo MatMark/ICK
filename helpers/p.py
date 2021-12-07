@@ -24,14 +24,14 @@ class PWave():
                     break
                 fragment = fragment[:-1:]
             # get only right half of R-R interval
-            right_half = fragment[int(fragment.size/2)::]
+            right_half = fragment[int(fragment.size*2/3)::]
             # P must be 20% above average value
             above_minimum = list(
                 filter(self.check_is_above_minimal, right_half))
             if (above_minimum):
                 p_y = max(above_minimum)
                 p_x = list(right_half).index(p_y) + \
-                    int(fragment.size/2) + r_x[i]
+                    int(fragment.size*2/3) + r_x[i]
                 self.p_x.append(p_x)
                 self.p_y.append(p_y)
         return self.p_x, self.p_y
