@@ -4,9 +4,12 @@
 # |                      2021                          |
 
 
+# Finding and returning r-wave position using firstSearch and findMaximum
 def find_r(ecg):
     r_x, r_y = firstSearch(ecg, findMaximum(ecg))
     return r_x, r_y
+
+# Checking 10 elements left to our point in ECG signal. If all are smaller, then return TRUE
 
 
 def checkLeft(data, position):
@@ -22,6 +25,8 @@ def checkLeft(data, position):
                 return False
     return True
 
+# Checking 10 elements right to our point in ECG signal. If all are smaller, then return TRUE
+
 
 def checkRight(data, position):
     if(position == len(data)-1):
@@ -36,6 +41,8 @@ def checkRight(data, position):
                 return False
     return True
 
+# Finding maximum in ECG signl
+
 
 def findMaximum(ecg):
     maximum = 0
@@ -43,6 +50,9 @@ def findMaximum(ecg):
         if(maximum < i):
             maximum = i
     return maximum
+
+# Finding r-waves positions using checkLeft and checkRight
+# Only choosing ones that are biger than 50% of maximum ECG singal value
 
 
 def firstSearch(data, max):

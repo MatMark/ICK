@@ -7,6 +7,8 @@
 | load_from_mitdb.py        | wczytywanie plików z bazy MIT i LUED  |
 | plotting.py               | tworzenie wykresu                     |
 | r.py                      | wykrywanie załamków R                 |
+| p.py                      | wykrywanie załamków P                 |
+| rhythm.py                 | wykrywanie arytmii                    |
 
 # Dane
 
