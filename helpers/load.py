@@ -15,8 +15,7 @@ import helpers.load_from_mitdb as mitdb
 def load_data(context):
     # open file explorer
     path = QFileDialog.getOpenFileName(context, 'Open a file', '',
-                                       'All Files (*.*)')
-    path = path[0]
+                                       '.dat .hea .mat (*.dat *.hea *.mat)')[0]
     extension = os.path.splitext(path)[1]
     file_name = os.path.basename(path)
 

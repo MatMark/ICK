@@ -2,9 +2,10 @@
 # |             POLITECHNIKA WROCŁAWSKA                |
 # |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
 # |                    2021/2022                       |
+import json
 
-from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QFileDialog, QLabel, QVBoxLayout
 
 
 class HelpDialog(QDialog):
@@ -58,3 +59,29 @@ Prowadzący: dr inż. Jan Nikodem \nRok akademicki: 2021\\2022"
         layout.addWidget(about)
 
         self.setLayout(layout)
+
+
+class OpenDignosisDialog(QDialog):
+    def __init__(self, parent=None):
+        super(OpenDignosisDialog, self).__init__(parent)
+        name = QFileDialog.getOpenFileName(
+            self, 'Open File', '', '.diag (*.diag)')[0]
+
+        file = open(name, 'r')
+        self.data = file.read()
+        file.close()
+    
+    def getDiagnosis(self):
+        return json.loads(self.data)
+
+
+class SaveDignosisDialog(QDialog):
+    def __init__(self, parent=None, diagnosis=""):
+        super(SaveDignosisDialog, self).__init__(parent)
+        name = QFileDialog.getSaveFileName(
+            self, 'Save File', '', '.diag (*.diag)')[0]
+        if not name.endswith('.diag'):
+            name += '.diag'
+        file = open(name, 'w')
+        file.write(diagnosis)
+        file.close()

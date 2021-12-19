@@ -3,6 +3,7 @@
 # |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
 # |                    2021/2022                       |
 
+import json
 import math
 import sys
 
@@ -17,7 +18,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QGroupBox,
                              QHBoxLayout, QLabel, QMenuBar, QPushButton,
                              QVBoxLayout)
 
-from helpers.dialogs import AboutDialog, HelpDialog
+from helpers.dialogs import AboutDialog, HelpDialog, OpenDignosisDialog, SaveDignosisDialog
 from helpers.load import load_data
 from helpers.p import PWave
 from helpers.r import find_r
@@ -207,25 +208,52 @@ class Window(QDialog):
 
     # open diagnosis
     def openDiagnosis(self):
-        print("openDiagnosis")
-        pass
+        dialog = OpenDignosisDialog(parent=self)
+        diagnosis = dialog.getDiagnosis()
+        self.pulse = diagnosis['pulse']
+        self.fs = diagnosis['fs']
+        self.signal_length = diagnosis['signal_length']
+        self.file_name = diagnosis['file_name']
+        self.r_x = diagnosis['r_x']
+        self.r_y = diagnosis['r_y']
+        self.p_x = diagnosis['p_x']
+        self.p_y = diagnosis['p_y']
+        self.ecg = np.array(diagnosis['ecg'])
+        self.labelPulse.setText(f'Pulse: {self.pulse}')
+        self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
+        self.labelRhythm.setText(f'Heart rhythm: {diagnosis["rhythm"]}')
+
+        self.setWindowTitle(self.file_name)
+        self.plot()
 
     # save diagnosis
     def saveDiagnosis(self):
-        print("saveDiagnosis")
-        pass
+        if hasattr(self, 'pulse'):
+            diagDict = {
+                "pulse": self.pulse,
+                "diagnosis": self.checkDiseaseByPulse(self.pulse),
+                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x)),
+                "fs": self.fs,
+                "signal_length": self.signal_length,
+                "file_name": self.file_name,
+                "r_x": self.r_x,
+                "r_y": self.r_y,
+                "p_x": self.p_x,
+                "p_y": self.p_y,
+                "ecg": self.ecg.tolist()
+            }
+            diagnosis = json.dumps(diagDict)
+            SaveDignosisDialog(parent=self, diagnosis=diagnosis)
 
-    # about dialog
+    # about dial
     def showAboutDialog(self):
-        aboutDialog = AboutDialog(self)
+        aboutDialog = AboutDialog(parent=self)
         aboutDialog.exec_()
-        pass
 
     # help dialog
     def showHelpDialog(self):
-        helpDialog = HelpDialog(self)
+        helpDialog = HelpDialog(parent=self)
         helpDialog.exec_()
-        pass
 
     # bradycardia detection
     def checkBradycardia(self, pulse):
