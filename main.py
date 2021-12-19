@@ -1,21 +1,26 @@
 # | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
 # |             POLITECHNIKA WROCŁAWSKA                |
 # |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
-# |                      2021                          |
+# |                    2021/2022                       |
 
-from matplotlib import ticker
-from helpers.load import load_data
-from helpers.r import find_r
-from helpers.p import PWave
-
+import math
 import sys
-from PyQt5.QtWidgets import QDialog, QApplication, QLabel, QPushButton, QVBoxLayout
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+
 import matplotlib.pyplot as plt
 import numpy as np
-import math
+from matplotlib import ticker
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
+from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QGroupBox,
+                             QHBoxLayout, QLabel, QMenuBar, QPushButton,
+                             QVBoxLayout)
 
+from helpers.dialogs import AboutDialog, HelpDialog
+from helpers.load import load_data
+from helpers.p import PWave
+from helpers.r import find_r
 from helpers.rhythm import is_regular_rhythm
 
 
@@ -24,6 +29,7 @@ class Window(QDialog):
     # constructor
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+        self.setWindowTitle("W4N ECG analysis")
         # self.showFullScreen()
         screen = app.primaryScreen()
         rect = screen.availableGeometry()
@@ -37,43 +43,90 @@ class Window(QDialog):
         # 'figure' instance as a parameter to __init__
         self.canvas = FigureCanvas(self.figure)
 
+        menuBar = QMenuBar(self)
+
+        fileMenu = menuBar.addMenu("&File")
+        loadAction = QAction("&Load data...", self)
+        openAction = QAction("&Open diagnosis...", self)
+        saveAction = QAction("&Save diagnosis...", self)
+        exitAction = QAction("&Exit", self)
+
+        fileMenu.addAction(loadAction)
+        fileMenu.addSeparator()
+        fileMenu.addAction(openAction)
+        fileMenu.addAction(saveAction)
+        fileMenu.addSeparator()
+        fileMenu.addAction(exitAction)
+
+        loadAction.triggered.connect(self.load_data)
+        openAction.triggered.connect(self.openDiagnosis)
+        saveAction.triggered.connect(self.saveDiagnosis)
+        exitAction.triggered.connect(self.close)
+
+        helpMenu = menuBar.addMenu('&Help')
+        aboutAction = QAction("&About", self)
+        helpAction = QAction("&How to use", self)
+
+        helpMenu.addAction(aboutAction)
+        helpMenu.addAction(helpAction)
+
+        aboutAction.triggered.connect(self.showAboutDialog)
+        helpAction.triggered.connect(self.showHelpDialog)
+
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
-        self.toolbar = NavigationToolbar(self.canvas, self)
+        toolbar = NavigationToolbar(self.canvas, self)
 
-        # Just some button connected to 'plot' method
-        self.buttonLoad = QPushButton('Load data')
-        # self.buttonPlot = QPushButton('Plot')
-        self.buttonClose = QPushButton('Close')
+        diagnosisGroupBox = QGroupBox()
+        diagnosislayout = QHBoxLayout()
+
+        actionsGroupBox = QGroupBox()
+        actionslayout = QHBoxLayout()
+
+        # Just some buttons
+        buttonLoad = QPushButton('Load data')
+        buttonOpenDiagnosis = QPushButton('Open diagnosis')
+        buttonSaveDiagnosis = QPushButton('Save diagnosis')
+        buttonClose = QPushButton('Exit')
 
         self.labelPulse = QLabel('Pulse: ---')
-        self.labelPulse.setFixedHeight(40)
-
         self.labelDiagnosis = QLabel('Diagnosis: ---')
-        self.labelDiagnosis.setFixedHeight(30)
-
         self.labelRhythm = QLabel('Heart rhythm: ---')
-        self.labelRhythm.setFixedHeight(30)
+
         # adding action to the button
-        self.buttonLoad.clicked.connect(self.load_data)
-        # self.buttonPlot.clicked.connect(self.plot)
-        self.buttonClose.clicked.connect(self.close)
+        buttonLoad.clicked.connect(self.load_data)
+        buttonLoad.setFixedWidth(200)
+        buttonOpenDiagnosis.clicked.connect(self.openDiagnosis)
+        buttonOpenDiagnosis.setFixedWidth(200)
+        buttonSaveDiagnosis.clicked.connect(self.saveDiagnosis)
+        buttonSaveDiagnosis.setFixedWidth(200)
+        buttonClose.clicked.connect(self.close)
+        buttonClose.setFixedWidth(200)
 
         # creating a Vertical Box layout
         layout = QVBoxLayout()
 
-        layout.addWidget(self.labelPulse)
-        layout.addWidget(self.labelDiagnosis)
-        layout.addWidget(self.labelRhythm)
-        # adding canvas to the layout
-        layout.addWidget(self.canvas)
-
-        # adding push button to the layout
-        layout.addWidget(self.buttonLoad)
-        layout.addWidget(self.buttonClose)
+        diagnosislayout.addWidget(self.labelPulse)
+        diagnosislayout.addWidget(self.labelDiagnosis)
+        diagnosislayout.addWidget(self.labelRhythm)
+        diagnosisGroupBox.setLayout(diagnosislayout)
+        diagnosisGroupBox.setFixedHeight(60)
 
         # adding tool bar to the layout
-        layout.addWidget(self.toolbar)
+        actionslayout.addWidget(toolbar)
+        # adding push button to the layout
+        actionslayout.addWidget(buttonLoad)
+        actionslayout.addWidget(buttonOpenDiagnosis)
+        actionslayout.addWidget(buttonSaveDiagnosis)
+        actionslayout.addWidget(buttonClose)
+        actionsGroupBox.setLayout(actionslayout)
+        actionsGroupBox.setFixedHeight(60)
+
+        layout.setContentsMargins(10, 30, 10, 10)
+        layout.addWidget(diagnosisGroupBox)
+        # adding canvas to the layout
+        layout.addWidget(self.canvas)
+        layout.addWidget(actionsGroupBox)
 
         # setting layout to the main window
         self.setLayout(layout)
@@ -146,10 +199,33 @@ class Window(QDialog):
         self.labelPulse.setText(f'Pulse: {self.pulse}')
         self.labelDiagnosis.setText(
             f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
-        self.labelRhythm.setText('Heart rhythm: '+(self.checkRhythm(is_regular_rhythm(self.r_x))))
+        self.labelRhythm.setText(
+            f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
 
         self.setWindowTitle(self.file_name)
         self.plot()
+
+    # open diagnosis
+    def openDiagnosis(self):
+        print("openDiagnosis")
+        pass
+
+    # save diagnosis
+    def saveDiagnosis(self):
+        print("saveDiagnosis")
+        pass
+
+    # about dialog
+    def showAboutDialog(self):
+        aboutDialog = AboutDialog(self)
+        aboutDialog.exec_()
+        pass
+
+    # help dialog
+    def showHelpDialog(self):
+        helpDialog = HelpDialog(self)
+        helpDialog.exec_()
+        pass
 
     # bradycardia detection
     def checkBradycardia(self, pulse):
@@ -182,6 +258,7 @@ class Window(QDialog):
             return str("Regular")
         else:
             return str("Irregular")
+
 
 app = QApplication(sys.argv)
 main = Window()
