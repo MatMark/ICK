@@ -189,42 +189,44 @@ class Window(QDialog):
     def load_data(self):
         # loading ecg signal from file
         self.ecg, self.fs, self.file_name = load_data(self)
-        # finding R waves
-        self.r_x, self.r_y = find_r(self.ecg)
-        # finding P waves
-        self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
-        # signal length in sec
-        self.signal_length = self.ecg.size / self.fs
-        # pulse value
-        self.pulse = int(60/self.signal_length*len(self.r_x))
-        self.labelPulse.setText(f'Pulse: {self.pulse}')
-        self.labelDiagnosis.setText(
-            f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
-        self.labelRhythm.setText(
-            f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
+        if (self.ecg.size > 0):
+            # finding R waves
+            self.r_x, self.r_y = find_r(self.ecg)
+            # finding P waves
+            self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
+            # signal length in sec
+            self.signal_length = self.ecg.size / self.fs
+            # pulse value
+            self.pulse = int(60/self.signal_length*len(self.r_x))
+            self.labelPulse.setText(f'Pulse: {self.pulse}')
+            self.labelDiagnosis.setText(
+                f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
+            self.labelRhythm.setText(
+                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
 
-        self.setWindowTitle(self.file_name)
-        self.plot()
+            self.setWindowTitle(self.file_name)
+            self.plot()
 
     # open diagnosis
     def openDiagnosis(self):
         dialog = OpenDignosisDialog(parent=self)
-        diagnosis = dialog.getDiagnosis()
-        self.pulse = diagnosis['pulse']
-        self.fs = diagnosis['fs']
-        self.signal_length = diagnosis['signal_length']
-        self.file_name = diagnosis['file_name']
-        self.r_x = diagnosis['r_x']
-        self.r_y = diagnosis['r_y']
-        self.p_x = diagnosis['p_x']
-        self.p_y = diagnosis['p_y']
-        self.ecg = np.array(diagnosis['ecg'])
-        self.labelPulse.setText(f'Pulse: {self.pulse}')
-        self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
-        self.labelRhythm.setText(f'Heart rhythm: {diagnosis["rhythm"]}')
+        if hasattr(dialog, 'data'):
+            diagnosis = dialog.getDiagnosis()
+            self.pulse = diagnosis['pulse']
+            self.fs = diagnosis['fs']
+            self.signal_length = diagnosis['signal_length']
+            self.file_name = diagnosis['file_name']
+            self.r_x = diagnosis['r_x']
+            self.r_y = diagnosis['r_y']
+            self.p_x = diagnosis['p_x']
+            self.p_y = diagnosis['p_y']
+            self.ecg = np.array(diagnosis['ecg'])
+            self.labelPulse.setText(f'Pulse: {self.pulse}')
+            self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
+            self.labelRhythm.setText(f'Heart rhythm: {diagnosis["rhythm"]}')
 
-        self.setWindowTitle(self.file_name)
-        self.plot()
+            self.setWindowTitle(self.file_name)
+            self.plot()
 
     # save diagnosis
     def saveDiagnosis(self):

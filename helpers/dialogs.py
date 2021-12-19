@@ -66,11 +66,12 @@ class OpenDignosisDialog(QDialog):
         super(OpenDignosisDialog, self).__init__(parent)
         name = QFileDialog.getOpenFileName(
             self, 'Open File', '', '.diag (*.diag)')[0]
-
+        if name == '':
+            return
         file = open(name, 'r')
         self.data = file.read()
         file.close()
-    
+
     def getDiagnosis(self):
         return json.loads(self.data)
 
@@ -80,6 +81,8 @@ class SaveDignosisDialog(QDialog):
         super(SaveDignosisDialog, self).__init__(parent)
         name = QFileDialog.getSaveFileName(
             self, 'Save File', '', '.diag (*.diag)')[0]
+        if name == '':
+            return
         if not name.endswith('.diag'):
             name += '.diag'
         file = open(name, 'w')

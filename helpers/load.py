@@ -5,6 +5,8 @@
 
 
 import os
+
+import numpy as np
 from PyQt5.QtWidgets import QFileDialog
 
 import helpers.load_from_mendeley as mendeley
@@ -16,6 +18,8 @@ def load_data(context):
     # open file explorer
     path = QFileDialog.getOpenFileName(context, 'Open a file', '',
                                        '.dat .hea .mat (*.dat *.hea *.mat)')[0]
+    if path == '':
+        return np.empty(shape=[0]), np.empty(shape=[0]), np.empty(shape=[0])
     extension = os.path.splitext(path)[1]
     file_name = os.path.basename(path)
 
