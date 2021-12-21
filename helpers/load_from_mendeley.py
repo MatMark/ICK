@@ -1,7 +1,7 @@
 # | Miłosz Dziadosz, Krystian Kania, Mateusz Markowski |
 # |             POLITECHNIKA WROCŁAWSKA                |
 # |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
-# |                      2021                          |
+# |                    2021/2022                       |
 
 
 import scipy.io
