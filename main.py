@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QGroupBox,
 from helpers.dialogs import AboutDialog, HelpDialog, OpenDignosisDialog, SaveDignosisDialog
 from helpers.load import load_data
 from helpers.p import PWave
+from helpers.pr_interval import PRInterval
 from helpers.r import find_r
 from helpers.rhythm import is_regular_rhythm
 
@@ -203,6 +204,7 @@ class Window(QDialog):
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
                 f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
+            self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
 
             self.setWindowTitle(self.file_name)
             self.plot()
