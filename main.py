@@ -297,6 +297,8 @@ class Window(QDialog):
     def checkPRInterval(self, interval):
         if 0.12 <= interval <= 0.20:
             return "normal - " + str(round(interval, 3))
+        elif interval == -1:
+            return "P waves were not detected"
         else:
             return "out of range <0.12, 0.20> - " + str(round(interval, 3))
 

@@ -35,11 +35,12 @@ class PRInterval:
 
         return diff_array
 
+    # returns the mean value of PR interval
     def get_pr_interval(self, rx, px, fs):
         # copy of the original x coordinates for the R waves
         r_x = rx.copy()
 
-        # copy of the original x coordinates for the R waves
+        # copy of the original x coordinates for the P waves
         p_x = px.copy()
 
         # removes any excess R waves
@@ -55,6 +56,6 @@ class PRInterval:
         mean = np.mean(self.find_diff(r_x, p_x))
         mean_in_seconds = mean / fs
         if self.p_absence_amount > len(r_x)/4:
-            return "P waves were not detected"
+            return -1
         else:
             return mean_in_seconds
