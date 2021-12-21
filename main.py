@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QGroupBox,
                              QHBoxLayout, QLabel, QMenuBar, QPushButton,
                              QVBoxLayout)
 
-from helpers.dialogs import AboutDialog, HelpDialog, OpenDignosisDialog, SaveDignosisDialog
+from helpers.dialogs import AboutDialog, HelpDialog, OpenDiagnosisDialog, SaveDignosisDialog
 from helpers.load import load_data
 from helpers.p import PWave
 from helpers.pr_interval import PRInterval
@@ -200,6 +200,7 @@ class Window(QDialog):
             # pulse value
             self.pulse = int(60/self.signal_length*len(self.r_x))
             self.labelPulse.setText(f'Pulse: {self.pulse}')
+            self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
             self.labelDiagnosis.setText(
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
@@ -211,7 +212,7 @@ class Window(QDialog):
 
     # open diagnosis
     def openDiagnosis(self):
-        dialog = OpenDignosisDialog(parent=self)
+        dialog = OpenDiagnosisDialog(parent=self)
         if hasattr(dialog, 'data'):
             diagnosis = dialog.getDiagnosis()
             self.pulse = diagnosis['pulse']
@@ -222,6 +223,7 @@ class Window(QDialog):
             self.r_y = diagnosis['r_y']
             self.p_x = diagnosis['p_x']
             self.p_y = diagnosis['p_y']
+            self.pr_interval = diagnosis['pr_interval']
             self.ecg = np.array(diagnosis['ecg'])
             self.labelPulse.setText(f'Pulse: {self.pulse}')
             self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
@@ -237,6 +239,7 @@ class Window(QDialog):
                 "pulse": self.pulse,
                 "diagnosis": self.checkDiseaseByPulse(self.pulse),
                 "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x)),
+                "pr_interval": self.checkPRInterval(self.pr_interval),
                 "fs": self.fs,
                 "signal_length": self.signal_length,
                 "file_name": self.file_name,
@@ -290,6 +293,12 @@ class Window(QDialog):
             return str("Regular")
         else:
             return str("Irregular")
+
+    def checkPRInterval(self, interval):
+        if 0.12 <= interval <= 0.20:
+            return str("Normal")
+        else:
+            return str("Out of range <0.12, 0.20>")
 
 
 app = QApplication(sys.argv)

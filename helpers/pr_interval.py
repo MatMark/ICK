@@ -6,7 +6,7 @@
 
 import numpy as np
 
-# supports PR intervals
+
 class PRInterval:
     def __init__(self):
         pass
@@ -16,7 +16,6 @@ class PRInterval:
 
     # designates all PR intervals
     def find_diff(self, r_wave, p_wave):
-        global p_absence_amount
         diff_array = []
         for i in range(1, len(r_wave)):
             pom = 0
@@ -56,6 +55,6 @@ class PRInterval:
         mean = np.mean(self.find_diff(r_x, p_x))
         mean_in_seconds = mean / fs
         if self.p_absence_amount > len(r_x)/4:
-            return "nie wykryto załamków P"
+            return "P waves were not detected"
         else:
             return mean_in_seconds

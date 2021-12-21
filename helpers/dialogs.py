@@ -61,9 +61,9 @@ Prowadzący: dr inż. Jan Nikodem \nRok akademicki: 2021\\2022"
         self.setLayout(layout)
 
 
-class OpenDignosisDialog(QDialog):
+class OpenDiagnosisDialog(QDialog):
     def __init__(self, parent=None):
-        super(OpenDignosisDialog, self).__init__(parent)
+        super(OpenDiagnosisDialog, self).__init__(parent)
         name = QFileDialog.getOpenFileName(
             self, 'Open File', '', '.diag (*.diag)')[0]
         if name == '':
