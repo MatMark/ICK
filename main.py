@@ -296,9 +296,9 @@ class Window(QDialog):
 
     def checkPRInterval(self, interval):
         if 0.12 <= interval <= 0.20:
-            return str("Normal")
+            return "normal - " + str(round(interval, 3))
         else:
-            return str("Out of range <0.12, 0.20>")
+            return "out of range <0.12, 0.20> - " + str(round(interval, 3))
 
 
 app = QApplication(sys.argv)
