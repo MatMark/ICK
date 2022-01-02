@@ -238,7 +238,7 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
             self.labelDiagnosis.setText(
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
-                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
+                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x, self.fs))}')
             self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
 
             self.setWindowTitle(self.file_name)
@@ -335,10 +335,10 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
     # checks whether the rhythm is regular or irregular
     def checkRhythm(self, rhythm):
         if rhythm:
-            self.rhythmHelp.setToolTip('Dlaczego rytm jest regularny?')
+            self.rhythmHelp.setToolTip('Rytm serca uznajemy za regularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest mniejsze niż 0,05 sekund')
             return str("Regular")
         else:
-            self.rhythmHelp.setToolTip('Dlaczego rytm jest nieregularny?')
+            self.rhythmHelp.setToolTip('Rytm serca uznajemy za nieregularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest większe lub równe 0,05 sekund')
             return str("Irregular")
 
     def checkPRInterval(self, interval):
