@@ -277,7 +277,7 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
                 "pulseHelp": self.pulseHelp.toolTip(),
                 "diagnosis": self.checkDiseaseByPulse(self.pulse),
                 "diagnosisHelp": self.diagnosisHelp.toolTip(),
-                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x)),
+                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x, self.fs)),
                 "rhythmHelp": self.rhythmHelp.toolTip(),
                 "pr_interval": self.pr_interval,
                 "fs": self.fs,
