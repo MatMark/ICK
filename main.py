@@ -79,8 +79,16 @@ class Window(QDialog):
         # it takes the Canvas widget and a parent
         toolbar = NavigationToolbar(self.canvas, self)
 
+        analysisGroupBox = QGroupBox()
+        analysislayout = QHBoxLayout()
+
+        pulseGroupBox = QGroupBox()
         diagnosisGroupBox = QGroupBox()
+        rhythmGroupBox = QGroupBox()
+
+        pulselayout = QHBoxLayout()
         diagnosislayout = QHBoxLayout()
+        rhythmlayout = QHBoxLayout()
 
         actionsGroupBox = QGroupBox()
         actionslayout = QHBoxLayout()
@@ -92,8 +100,14 @@ class Window(QDialog):
         buttonClose = QPushButton('Exit')
 
         self.labelPulse = QLabel('Pulse: ---')
+        self.pulseHelp = QLabel('?')
+        self.pulseHelp.setToolTip('Tooltip for pulse')
         self.labelDiagnosis = QLabel('Diagnosis: ---')
+        self.diagnosisHelp = QLabel('?')
+        self.diagnosisHelp.setToolTip('Tooltip for diagnosis') 
         self.labelRhythm = QLabel('Heart rhythm: ---')
+        self.rhythmHelp = QLabel('?')
+        self.rhythmHelp.setToolTip('Tooltip for rhythm') 
 
         # adding action to the button
         buttonLoad.clicked.connect(self.load_data)
@@ -108,11 +122,22 @@ class Window(QDialog):
         # creating a Vertical Box layout
         layout = QVBoxLayout()
 
-        diagnosislayout.addWidget(self.labelPulse)
+        pulselayout.addWidget(self.labelPulse)
+        pulselayout.addStretch()
+        pulselayout.addWidget(self.pulseHelp)
         diagnosislayout.addWidget(self.labelDiagnosis)
-        diagnosislayout.addWidget(self.labelRhythm)
+        diagnosislayout.addStretch()
+        diagnosislayout.addWidget(self.diagnosisHelp)
+        rhythmlayout.addWidget(self.labelRhythm)
+        rhythmlayout.addStretch()
+        rhythmlayout.addWidget(self.rhythmHelp)
+
+        pulseGroupBox.setLayout(pulselayout)
+        pulseGroupBox.setFixedHeight(60)
         diagnosisGroupBox.setLayout(diagnosislayout)
         diagnosisGroupBox.setFixedHeight(60)
+        rhythmGroupBox.setLayout(rhythmlayout)
+        rhythmGroupBox.setFixedHeight(60)
 
         # adding tool bar to the layout
         actionslayout.addWidget(toolbar)
@@ -125,7 +150,12 @@ class Window(QDialog):
         actionsGroupBox.setFixedHeight(60)
 
         layout.setContentsMargins(10, 30, 10, 10)
-        layout.addWidget(diagnosisGroupBox)
+        analysislayout.addWidget(pulseGroupBox)
+        analysislayout.addWidget(diagnosisGroupBox)
+        analysislayout.addWidget(rhythmGroupBox)
+        analysisGroupBox.setLayout(analysislayout)
+        analysisGroupBox.setFixedHeight(90)
+        layout.addWidget(analysisGroupBox)
         # adding canvas to the layout
         layout.addWidget(self.canvas)
         layout.addWidget(actionsGroupBox)
@@ -200,11 +230,15 @@ class Window(QDialog):
             # pulse value
             self.pulse = int(60/self.signal_length*len(self.r_x))
             self.labelPulse.setText(f'Pulse: {self.pulse}')
+            self.pulseHelp.setToolTip(f'Puls = (60*R)/(n/fs)\n\nGdzie "R" oznacza liczbę wykrytych załamków R\n\
+"n" oznacza rzeczywistą liczbę próbek wczytaną z pliku,\n\
+a "fs" oznacza częstotliwość próbkowania sygnału w Hz\n\n\
+Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstotliwość próbkowania wynosi {self.fs} Hz') 
             self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
             self.labelDiagnosis.setText(
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
-                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x))}')
+                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x, self.fs))}')
             self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
 
             self.setWindowTitle(self.file_name)
@@ -226,8 +260,11 @@ class Window(QDialog):
             self.pr_interval = diagnosis['pr_interval']
             self.ecg = np.array(diagnosis['ecg'])
             self.labelPulse.setText(f'Pulse: {self.pulse}')
+            self.pulseHelp.setToolTip(diagnosis['pulseHelp']) 
             self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
+            self.diagnosisHelp.setToolTip(diagnosis['diagnosisHelp'])
             self.labelRhythm.setText(f'Heart rhythm: {diagnosis["rhythm"]}')
+            self.rhythmHelp.setToolTip(diagnosis['rhythmHelp'])
 
             self.setWindowTitle(self.file_name)
             self.plot()
@@ -237,9 +274,12 @@ class Window(QDialog):
         if hasattr(self, 'pulse'):
             diagDict = {
                 "pulse": self.pulse,
+                "pulseHelp": self.pulseHelp.toolTip(),
                 "diagnosis": self.checkDiseaseByPulse(self.pulse),
-                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x)),
-                "pr_interval": self.checkPRInterval(self.pr_interval),
+                "diagnosisHelp": self.diagnosisHelp.toolTip(),
+                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x, self.fs)),
+                "rhythmHelp": self.rhythmHelp.toolTip(),
+                "pr_interval": self.pr_interval,
                 "fs": self.fs,
                 "signal_length": self.signal_length,
                 "file_name": self.file_name,
@@ -266,16 +306,20 @@ class Window(QDialog):
     def checkBradycardia(self, pulse):
         if(pulse < 60):
             if(pulse > 50):
+                self.diagnosisHelp.setToolTip('Puls jest mniejszy niż 60, ale większy niż 50')
                 return str("Probability of Bradycardia")
             else:
+                self.diagnosisHelp.setToolTip('Puls jest mniejszy niż 50')
                 return str("High probability of Bradycardia")
 
     # tachycardia detection
     def checkTachycardia(self, pulse):
         if(pulse > 100):
             if(pulse > 120):
+                self.diagnosisHelp.setToolTip('Puls jest większy niż 120')
                 return str("High probability of Tachycardia")
             else:
+                self.diagnosisHelp.setToolTip('Puls jest większy niż 100, ale mniejszy niż 120')
                 return str("Probability of Tachycardia")
 
     # heart rate based detection disease
@@ -285,13 +329,16 @@ class Window(QDialog):
         elif(self.checkTachycardia(pulse) != None):
             return self.checkTachycardia(pulse)
         else:
+            self.diagnosisHelp.setToolTip('Puls jest większy niż 60 i mniejszy niż 100')
             return str("Programmed anomally not found.")
 
     # checks whether the rhythm is regular or irregular
     def checkRhythm(self, rhythm):
         if rhythm:
+            self.rhythmHelp.setToolTip('Rytm serca uznajemy za regularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest mniejsze niż 0,05 sekund')
             return str("Regular")
         else:
+            self.rhythmHelp.setToolTip('Rytm serca uznajemy za nieregularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest większe lub równe 0,05 sekund')
             return str("Irregular")
 
     def checkPRInterval(self, interval):

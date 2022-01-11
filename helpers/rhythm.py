@@ -6,7 +6,7 @@
 import numpy as np
 
 
-def is_regular_rhythm(rx):
+def is_regular_rhythm(rx, fs):
     # copy of the original x coordinates for the R waves
     r_x = rx.copy()
 
@@ -26,10 +26,11 @@ def is_regular_rhythm(rx):
         new_r_x.append(r_x[i+1] - r_x[i])
         i = i + 1
 
-    # determination of the standard deviation for differences between the R waves
-    min_standard_deviation = 25
+    # determination of the standard deviation (in seconds) for differences between the R waves
+    min_std_dev_in_sec = 0.05
     std_dev = np.std(new_r_x)
-    if std_dev < min_standard_deviation:
+    std_dev_in_sec = std_dev / fs
+    if std_dev_in_sec < min_std_dev_in_sec:
         return True
     else:
         return False

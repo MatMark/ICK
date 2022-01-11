@@ -3,6 +3,7 @@
 # |      WYDZIAŁ INFORMATYKI I TELEKOMUNIKACJI         |
 # |                    2021/2022                       |
 import json
+import os
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QLabel, QVBoxLayout
@@ -12,6 +13,8 @@ class HelpDialog(QDialog):
     def __init__(self, parent=None):
         super(HelpDialog, self).__init__(parent)
         helpText = "\
+Program umożliwia obliczenie pulsu na podstawie wskazanego sygnału EKG i wyznaczenie czy rytm serca jest regularny. \
+Ponadto program pozwala na diagnozę w zakresie tachykardii oraz bradykardii.\n\n\
             W górnej części ekranu znajduje się podsumowanie analizy wczytanego sygnału EKG w tym puls, diagnoza i analiza rytmu serca.\n\n\
             W centralnej części ekranu znajduje się miejsce, w którym zostanie wyświetlony wczytany sygnał EKG wraz z zaznaczonymi wykrytymi przez program załamkami R (niebieskie kropki) oraz P (zielone krzyżyki).\n\n\
             W dolnej części ekranu po lewej znajduje się panel sterowania wykresem umożliwiający manipulacje wyświetlanym fragmentem sygnału. Po prawej znajdują się przyciski sterowania programem.\n\n\
@@ -79,8 +82,9 @@ class OpenDiagnosisDialog(QDialog):
 class SaveDignosisDialog(QDialog):
     def __init__(self, parent=None, diagnosis=""):
         super(SaveDignosisDialog, self).__init__(parent)
+        filaname = os.path.splitext(json.loads(diagnosis)['file_name'])[0]
         name = QFileDialog.getSaveFileName(
-            self, 'Save File', '', '.diag (*.diag)')[0]
+            self, 'Save File', filaname, '.diag (*.diag)')[0]
         if name == '':
             return
         if not name.endswith('.diag'):
