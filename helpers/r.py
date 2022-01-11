@@ -6,7 +6,7 @@
 
 # Finding and returning r-wave position using firstSearch and findMaximum
 def find_r(ecg):
-    r_x, r_y = firstSearch(ecg, findMaximum(ecg))
+    r_x, r_y = secondSearch(ecg)
     return r_x, r_y
 
 # Checking 10 elements left to our point in ECG signal. If all are smaller, then return TRUE
@@ -62,3 +62,18 @@ def firstSearch(data, max):
             r_x.append(i)
             r_y.append(data[i])
     return r_x, r_y
+
+def secondSearch(ecg):
+    nr_x, nr_y = [], []
+    r_x, r_y = firstSearch(ecg, findMaximum(ecg))
+    for i in range(len(r_x)-1):
+        for j in range(r_x[i+1]-r_x[i]-1):
+            if((ecg[r_x[i]+1+j])<(0.8*r_y[i]) and (ecg[r_x[i]+1+j])<(0.8*r_y[i])):
+                nr_x.append(r_x[i])
+                nr_y.append(r_y[i])
+                if(i == (len(r_x)-2)):
+                    nr_x.append(r_x[i+1])
+                    nr_y.append(r_y[i+1])
+                break
+    return nr_x, nr_y
+
