@@ -182,6 +182,7 @@ class Window(QDialog):
 
         ax.plot(time, base, color='red', linewidth=1.5)
         ax.plot(time, self.ecg, color='black', linewidth=.5)
+        self.show_rr_intervals(ax, rx, ry, min_var)
         ax.plot(rx, ry, color='blue',
                 marker='o', linewidth=3, linestyle="None")
         ax.plot(px, py, color='green',
@@ -213,6 +214,30 @@ class Window(QDialog):
 
         self.canvas.draw()
 
+    # show time between R waves
+    def show_rr_intervals(self, ax, rx, ry, min_var):
+        for i in range(len(rx) - 1):
+            point1 = [rx[i], min_var]
+            point2 = [rx[i+1], min_var]
+            x_values = [point1[0], point2[0]]
+            y_values = [point1[1], point2[1]]
+            ax.plot(x_values, y_values, color='c')
+
+            text_x = ((rx[i+1] - rx[i])/2) + rx[i]
+            ax.text(text_x - 0.025, min_var + 0.05, "{:.2f}s".format(rx[i+1] - rx[i]), fontsize=10, color="c")
+
+            point1 = [rx[i], min_var]
+            point2 = [rx[i], ry[i]]
+            x_values = [point1[0], point2[0]]
+            y_values = [point1[1], point2[1]]
+            ax.plot(x_values, y_values, color='c')
+
+            point1 = [rx[i+1], min_var]
+            point2 = [rx[i+1], ry[i+1]]
+            x_values = [point1[0], point2[0]]
+            y_values = [point1[1], point2[1]]
+            ax.plot(x_values, y_values, color='c')
+
     # loading data
     def load_data(self):
         # loading ecg signal from file
@@ -237,7 +262,6 @@ class Window(QDialog):
 "n" oznacza rzeczywistą liczbę próbek wczytaną z pliku,\n\
 a "fs" oznacza częstotliwość próbkowania sygnału w Hz\n\n\
 Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstotliwość próbkowania wynosi {self.fs} Hz')
-            self.pr_interval = h.PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
             self.labelDiagnosis.setText(
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
