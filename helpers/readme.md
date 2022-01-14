@@ -9,6 +9,7 @@
 | r.py                      | wykrywanie załamków R                 |
 | p.py                      | wykrywanie załamków P                 |
 | rhythm.py                 | wykrywanie arytmii                    |
+| base_line.py              | wykrywanie linii bazowej              |
 | dialogs.py                | klasy pomocnicze do wysw. okienek     |
 
 # Dane

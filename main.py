@@ -17,13 +17,7 @@ from matplotlib.backends.backend_qt5agg import \
 from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QGroupBox,
                              QHBoxLayout, QLabel, QMenuBar, QPushButton,
                              QVBoxLayout)
-
-from helpers.dialogs import AboutDialog, HelpDialog, OpenDiagnosisDialog, SaveDignosisDialog
-from helpers.load import load_data
-from helpers.p import PWave
-from helpers.pr_interval import PRInterval
-from helpers.r import find_r
-from helpers.rhythm import is_regular_rhythm
+import helpers as h
 
 
 class Window(QDialog):
@@ -104,10 +98,10 @@ class Window(QDialog):
         self.pulseHelp.setToolTip('Tooltip for pulse')
         self.labelDiagnosis = QLabel('Diagnosis: ---')
         self.diagnosisHelp = QLabel('?')
-        self.diagnosisHelp.setToolTip('Tooltip for diagnosis') 
+        self.diagnosisHelp.setToolTip('Tooltip for diagnosis')
         self.labelRhythm = QLabel('Heart rhythm: ---')
         self.rhythmHelp = QLabel('?')
-        self.rhythmHelp.setToolTip('Tooltip for rhythm') 
+        self.rhythmHelp.setToolTip('Tooltip for rhythm')
 
         # adding action to the button
         buttonLoad.clicked.connect(self.load_data)
@@ -172,6 +166,8 @@ class Window(QDialog):
         # coordinates of P wave
         px = [x / self.fs for x in self.p_x]
         py = self.p_y
+        # base line
+        base = np.full((self.ecg.size), self.base_y)
 
         min_var = math.floor(min(self.ecg))
         max_var = math.ceil(max(self.ecg))
@@ -184,6 +180,7 @@ class Window(QDialog):
         # create an axis
         ax = self.figure.add_subplot(111)
 
+        ax.plot(time, base, color='red', linewidth=1.5)
         ax.plot(time, self.ecg, color='black', linewidth=.5)
         ax.plot(rx, ry, color='blue',
                 marker='o', linewidth=3, linestyle="None")
@@ -219,12 +216,18 @@ class Window(QDialog):
     # loading data
     def load_data(self):
         # loading ecg signal from file
-        self.ecg, self.fs, self.file_name = load_data(self)
+        self.ecg, self.fs, self.file_name = h.load_data(self)
+        self.analize_signal()
+
+    # signal analizing
+    def analize_signal(self):
         if (self.ecg.size > 0):
             # finding R waves
-            self.r_x, self.r_y = find_r(self.ecg)
+            self.r_x, self.r_y = h.find_r(self.ecg)
             # finding P waves
-            self.p_x, self.p_y = PWave().find_p(self.ecg, self.r_x)
+            self.p_x, self.p_y = h.PWave().find_p(self.ecg, self.r_x)
+            # finding base line
+            self.base_y = h.find_base(self.ecg)
             # signal length in sec
             self.signal_length = self.ecg.size / self.fs
             # pulse value
@@ -233,20 +236,20 @@ class Window(QDialog):
             self.pulseHelp.setToolTip(f'Puls = (60*R)/(n/fs)\n\nGdzie "R" oznacza liczbę wykrytych załamków R\n\
 "n" oznacza rzeczywistą liczbę próbek wczytaną z pliku,\n\
 a "fs" oznacza częstotliwość próbkowania sygnału w Hz\n\n\
-Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstotliwość próbkowania wynosi {self.fs} Hz') 
-            self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
+Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstotliwość próbkowania wynosi {self.fs} Hz')
+            self.pr_interval = h.PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
             self.labelDiagnosis.setText(
                 f'Diagnosis: {self.checkDiseaseByPulse(self.pulse)}')
             self.labelRhythm.setText(
-                f'Heart rhythm: {self.checkRhythm(is_regular_rhythm(self.r_x, self.fs))}')
-            self.pr_interval = PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
+                f'Heart rhythm: {self.checkRhythm(h.is_regular_rhythm(self.r_x, self.fs))}')
+            self.pr_interval = h.PRInterval().get_pr_interval(self.r_x, self.p_x, self.fs)
 
             self.setWindowTitle(self.file_name)
             self.plot()
 
     # open diagnosis
     def openDiagnosis(self):
-        dialog = OpenDiagnosisDialog(parent=self)
+        dialog = h.OpenDiagnosisDialog(parent=self)
         if hasattr(dialog, 'data'):
             diagnosis = dialog.getDiagnosis()
             self.pulse = diagnosis['pulse']
@@ -260,7 +263,7 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
             self.pr_interval = diagnosis['pr_interval']
             self.ecg = np.array(diagnosis['ecg'])
             self.labelPulse.setText(f'Pulse: {self.pulse}')
-            self.pulseHelp.setToolTip(diagnosis['pulseHelp']) 
+            self.pulseHelp.setToolTip(diagnosis['pulseHelp'])
             self.labelDiagnosis.setText(f'Diagnosis: {diagnosis["diagnosis"]}')
             self.diagnosisHelp.setToolTip(diagnosis['diagnosisHelp'])
             self.labelRhythm.setText(f'Heart rhythm: {diagnosis["rhythm"]}')
@@ -277,7 +280,7 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
                 "pulseHelp": self.pulseHelp.toolTip(),
                 "diagnosis": self.checkDiseaseByPulse(self.pulse),
                 "diagnosisHelp": self.diagnosisHelp.toolTip(),
-                "rhythm": self.checkRhythm(is_regular_rhythm(self.r_x, self.fs)),
+                "rhythm": self.checkRhythm(h.is_regular_rhythm(self.r_x, self.fs)),
                 "rhythmHelp": self.rhythmHelp.toolTip(),
                 "pr_interval": self.pr_interval,
                 "fs": self.fs,
@@ -290,23 +293,24 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
                 "ecg": self.ecg.tolist()
             }
             diagnosis = json.dumps(diagDict)
-            SaveDignosisDialog(parent=self, diagnosis=diagnosis)
+            h.SaveDignosisDialog(parent=self, diagnosis=diagnosis)
 
     # about dial
     def showAboutDialog(self):
-        aboutDialog = AboutDialog(parent=self)
+        aboutDialog = h.AboutDialog(parent=self)
         aboutDialog.exec_()
 
     # help dialog
     def showHelpDialog(self):
-        helpDialog = HelpDialog(parent=self)
+        helpDialog = h.HelpDialog(parent=self)
         helpDialog.exec_()
 
     # bradycardia detection
     def checkBradycardia(self, pulse):
         if(pulse < 60):
             if(pulse > 50):
-                self.diagnosisHelp.setToolTip('Puls jest mniejszy niż 60, ale większy niż 50')
+                self.diagnosisHelp.setToolTip(
+                    'Puls jest mniejszy niż 60, ale większy niż 50')
                 return str("Probability of Bradycardia")
             else:
                 self.diagnosisHelp.setToolTip('Puls jest mniejszy niż 50')
@@ -319,7 +323,8 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
                 self.diagnosisHelp.setToolTip('Puls jest większy niż 120')
                 return str("High probability of Tachycardia")
             else:
-                self.diagnosisHelp.setToolTip('Puls jest większy niż 100, ale mniejszy niż 120')
+                self.diagnosisHelp.setToolTip(
+                    'Puls jest większy niż 100, ale mniejszy niż 120')
                 return str("Probability of Tachycardia")
 
     # heart rate based detection disease
@@ -329,16 +334,19 @@ Wykryto {len(self.r_x)} załamków R, wczytano {self.ecg.size} próbek, częstot
         elif(self.checkTachycardia(pulse) != None):
             return self.checkTachycardia(pulse)
         else:
-            self.diagnosisHelp.setToolTip('Puls jest większy niż 60 i mniejszy niż 100')
+            self.diagnosisHelp.setToolTip(
+                'Puls jest większy niż 60 i mniejszy niż 100')
             return str("Programmed anomally not found.")
 
     # checks whether the rhythm is regular or irregular
     def checkRhythm(self, rhythm):
         if rhythm:
-            self.rhythmHelp.setToolTip('Rytm serca uznajemy za regularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest mniejsze niż 0,05 sekund')
+            self.rhythmHelp.setToolTip(
+                'Rytm serca uznajemy za regularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest mniejsze niż 0,05 sekund')
             return str("Regular")
         else:
-            self.rhythmHelp.setToolTip('Rytm serca uznajemy za nieregularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest większe lub równe 0,05 sekund')
+            self.rhythmHelp.setToolTip(
+                'Rytm serca uznajemy za nieregularny, gdy odchylenie standardowe różnic pomiędzy załamkami R jest większe lub równe 0,05 sekund')
             return str("Irregular")
 
     def checkPRInterval(self, interval):
