@@ -221,7 +221,7 @@ class Window(QDialog):
             point2 = [rx[i+1], min_var]
             x_values = [point1[0], point2[0]]
             y_values = [point1[1], point2[1]]
-            ax.plot(x_values, y_values, color='c')
+            ax.plot(x_values, y_values, color='c', linestyle="dashed")
 
             text_x = ((rx[i+1] - rx[i])/2) + rx[i]
             ax.text(text_x - 0.025, min_var + 0.05, "{:.2f}s".format(rx[i+1] - rx[i]), fontsize=10, color="c")
@@ -230,13 +230,13 @@ class Window(QDialog):
             point2 = [rx[i], ry[i]]
             x_values = [point1[0], point2[0]]
             y_values = [point1[1], point2[1]]
-            ax.plot(x_values, y_values, color='c')
+            ax.plot(x_values, y_values, color='c', linestyle="dashed")
 
             point1 = [rx[i+1], min_var]
             point2 = [rx[i+1], ry[i+1]]
             x_values = [point1[0], point2[0]]
             y_values = [point1[1], point2[1]]
-            ax.plot(x_values, y_values, color='c')
+            ax.plot(x_values, y_values, color='c', linestyle="dashed")
 
     # loading data
     def load_data(self):
