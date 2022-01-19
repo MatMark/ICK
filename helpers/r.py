@@ -4,7 +4,7 @@
 # |                    2021/2022                       |
 
 
-# Finding and returning r-wave position using firstSearch and findMaximum
+# Finding and returning r-wave position using secondSearch
 def find_r(ecg):
     r_x, r_y = secondSearch(ecg)
     return r_x, r_y
@@ -66,9 +66,12 @@ def firstSearch(data, max):
 def secondSearch(ecg):
     nr_x, nr_y = [], []
     r_x, r_y = firstSearch(ecg, findMaximum(ecg))
+    # searching for decrease between to r's
+    # checking values between
+    # if there is no considerable decrease, r will not be included 
     for i in range(len(r_x)-1):
         for j in range(r_x[i+1]-r_x[i]-1):
-            if((ecg[r_x[i]+1+j])<(0.8*r_y[i]) and (ecg[r_x[i]+1+j])<(0.8*r_y[i])):
+            if((ecg[r_x[i]+1+j])<(0.8*r_y[i]) and (ecg[r_x[i]+1+j])<(0.8*r_y[i+1])):
                 nr_x.append(r_x[i])
                 nr_y.append(r_y[i])
                 if(i == (len(r_x)-2)):
